@@ -12,11 +12,10 @@
  */
 
 /*
- * Specifies core structures related to cryptographic operations and primitives. These records and enumerates are used
- * throughout the codebase as a standard base set of definitions for hashing, encryption, and more.
+ * Specifies structures and enumerations used by the Elide command-line tool.
  */
 syntax = "proto3";
-package elide.crypto;
+package elide.cli;
 
 option optimize_for = CODE_SIZE;
 option cc_enable_arenas = true;
@@ -25,35 +24,59 @@ option java_string_check_utf8 = true;
 option php_class_prefix = "ELD";
 option swift_prefix = "Elide";
 option objc_class_prefix = "ELD";
-option java_package = "tools.elide.crypto";
-option csharp_namespace = "Elide.Crypto";
-option go_package = "github.com/elide-tools/elide/crypto;crypto";
+option java_package = "tools.elide.cli";
+option csharp_namespace = "Elide.CLI";
+option go_package = "github.com/elide-tools/elide/cli;elidetool";
+
+import "elide/data/secrets/token.proto";
 
 
-// Specifies hash algorithms supported by the asset manifest code. We keep a token for this around so that we can
-// easily detect configuration changes and make evictions accordingly.
-enum HashAlgorithm {
-  // No hash algorithm was/is active.
-  IDENTITY = 0;
+// Coming soon.
+//
+message LocalAuthToken {
+  // Auth token attached to this record.
+  oneof auth_token {
+    // Specifies an authorization token for a user.
+    elide.data.secrets.Token user_token = 1;
+  }
+}
 
-  // Algorithm: MD5.
-  MD5 = 1;
+// Coming soon.
+//
+message CommandLineConfig {
+  // Coming soon.
+  ElideToolOptions defaults = 1;
 
-  // Algorithm: SHA1.
-  SHA1 = 2;
+  // Coming soon.
+  ElideToolOptions settings = 2;
+}
 
-  // Algorithm: SHA-256.
-  SHA256 = 3;
+// Coming soon.
+//
+message ElideToolOptions {
+  // Coming soon.
+  //
+  message OutputOptions {
+    // Coming soon.
+    bool verbose = 1;
 
-  // Algorithm: SHA-512.
-  SHA512 = 4;
+    // Coming soon.
+    bool quiet = 2;
 
-  // Algorithm: SHA3-224.
-  SHA3_224 = 5;
+    // Coming soon.
+    bool pretty = 3;
+  }
 
-  // Algorithm: SHA3-256.
-  SHA3_256 = 6;
+  // Options that control tool output.
+  OutputOptions output = 1;
+}
 
-  // Algorithm: SHA3-512.
-  SHA3_512 = 7;
+// Coming soon.
+//
+message ElideToolState {
+  // Coming soon.
+  LocalAuthToken auth = 1;
+
+  // Coming soon.
+  CommandLineConfig config = 2;
 }

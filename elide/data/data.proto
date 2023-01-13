@@ -16,22 +16,21 @@
  * throughout the codebase as a standard base set of definitions for hashing, encryption, and more.
  */
 syntax = "proto3";
-package data;
+package elide.data;
 
 option optimize_for = SPEED;
 option cc_enable_arenas = true;
 option java_multiple_files = true;
 option java_string_check_utf8 = true;
-option php_namespace = "Elide\\Data";
 option php_class_prefix = "ELD";
 option swift_prefix = "Elide";
 option objc_class_prefix = "ELD";
-option ruby_package = "Elide::Data";
 option java_package = "tools.elide.data";
 option csharp_namespace = "Elide.Data";
 option go_package = "github.com/elide-tools/elide/data;data";
 
 import "elide/crypto/crypto.proto";
+import "elide/data/encoding.proto";
 
 
 // Specifies compression modes that are supported by the framework for pre-compressed assets stored inline within the
@@ -40,11 +39,17 @@ enum CompressionMode {
   // No compression.
   IDENTITY = 0;
 
-  // Standard gzip-based pre-compression.
+  // Standard gzip-based compression.
   GZIP = 1;
 
-  // Brotli-based pre-compression.
+  // Brotli-based compression.
   BROTLI = 2;
+
+  // Snappy-based compression.
+  SNAPPY = 3;
+
+  // Deflate (zlib)-based compression.
+  DEFLATE = 4;
 }
 
 
@@ -60,6 +65,9 @@ message DataFingerprint {
 
   // Content of the fingerprint/checksum calculated as part of this data fingerprint.
   bytes fingerprint = 3;
+
+  // Specifies the encoding for the affixed fingerprint data. If unspecified, the fingerprint is expressed in raw bytes.
+  data.Encoding encoding = 4;
 }
 
 
@@ -72,6 +80,9 @@ message DataContainer {
   // Specifies an (optional) integrity fingerprint that may be used to verify the consistency of the underlying data
   // held by this data container.
   repeated DataFingerprint integrity = 2;
+
+  // Specifies the encoding for the affixed container data. If unspecified, the data is expressed in raw bytes.
+  data.Encoding encoding = 3;
 }
 
 
@@ -92,4 +103,30 @@ message CompressedData {
   // Holds an (optional) integrity fingerprint, calculated from the held data *before* compression, which maybe used to
   // verify the consistency of the data held by this container after de-compression.
   repeated DataFingerprint integrity = 4;
+}
+
+// Specifies the structure of a data container which can also be a reference to a different resource or file-system
+// style-asset. Only one reference value may be filled in.
+message DataContainerRef {
+  // Specifies a fingerprint and path pair.
+  message FingerprintPathPair {
+    // Specifies the fingerprint information associated with, or calculated for, the subject info.
+    DataFingerprint fingerprint = 1;
+
+    // Specifies the path for this data container reference.
+    string path = 2;
+  }
+
+  // Specifies the reference subject for this record.
+  oneof reference {
+    // Specifies raw data which is enclosed as a value with this reference. In this case, a data blob and fingerprint
+    // are enclosed inline within the protocol buffer.
+    CompressedData data = 1;
+
+    // Specifies a reference to a file resident in the application JAR or native image.
+    FingerprintPathPair resource = 2;
+
+    // Specifies a reference to a file resident on the filesystem outside of the built application.
+    FingerprintPathPair filesystem = 3;
+  }
 }

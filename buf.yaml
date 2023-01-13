@@ -1,16 +1,10 @@
 version: v1
 
-name: buf.build/elide/v3
+name: buf.build/elide/protocol
 
 build:
   excludes:
-    - bazel-bin
-    - bazel-elide
-    - bazel-out
-    - bazel-testlogs
     - dist
-    - external
-    - node_modules
 lint:
   use:
     - DEFAULT
@@ -54,4 +48,3 @@ breaking:
 deps:
   - buf.build/googleapis/googleapis
   - buf.build/elide/safe-html-types
-
